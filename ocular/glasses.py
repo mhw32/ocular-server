@@ -16,6 +16,8 @@ class Glasses(object):
         self.center_piece = None
 
     def load_pieces_from_directory(self, dir):
+        # NOTE: user should overload this function.
+        #
         # Given some directory with properly named PNG files, 
         # load them to the glass.
         # 
@@ -26,14 +28,39 @@ class Glasses(object):
         #   dir/left_eyepiece.png
         #   dir/right_eyepiece.png
         #   dir/center_piece.png
-        left_earpiece = Image.open(os.path.join(dir, 'left_earpiece.png'))
-        right_earpiece = Image.open(os.path.join(dir, 'right_earpiece.png'))
-        left_eyepiece = Image.open(os.path.join(dir, 'left_eyepiece.png'))
-        right_eyepiece = Image.open(os.path.join(dir, 'right_eyepiece.png'))
-        center_piece = Image.open(os.path.join(dir, 'center_piece.png'))
+        self.left_earpiece = Image.open(os.path.join(dir, 'left_earpiece.png'))
+        self.right_earpiece = Image.open(os.path.join(dir, 'right_earpiece.png'))
+        self.left_eyepiece = Image.open(os.path.join(dir, 'left_eyepiece.png'))
+        self.right_eyepiece = Image.open(os.path.join(dir, 'right_eyepiece.png'))
+        self.center_piece = Image.open(os.path.join(dir, 'center_piece.png'))
 
-        self.left_earpiece = np.asarray(left_earpiece)
-        self.right_earpiece = np.asarray(right_earpiece)
-        self.left_eyepiece = np.asarray(left_eyepiece)
-        self.left_eyepiece = np.asarray(left_eyepiece)
-        self.center_piece = np.asarray(center_piece)
+    def place_glasses(self, face):
+        # NOTE: only call after <load_pieces_from_directory>
+        left_eyepiece = self._place_left_eyepiece(face)
+        right_eyepiece = self._place_right_eyepiece(face)
+        left_earpiece = self._place_left_earpiece(face, left_eyepiece)
+        right_earpiece = self._place_right_earpiece(face, right_eyepiece)
+        center_piece = self._place_center_piece(face, left_eyepiece, right_earpiece)
+        return {
+            'left_eyepiece': left_eyepiece,
+            'right_eyepiece': right_eyepiece,
+            'left_earpiece': left_earpiece,
+            'right_earpiece': right_earpiece,
+            'center_piece': center_piece,
+        }
+
+    def _place_left_eyepiece(self, face):
+        assert self.left_earpiece is not None
+
+    def _place_right_eyepiece(self, face):
+        assert self.right_earpiece is not None
+
+    def _place_left_earpiece(self, face, left_eyepiece):
+        assert self.left_earpiece is not None
+
+    def _place_right_earpiece(self, face, right_eyepiece):
+        assert self.right_earpiece is not None
+
+    def _place_center_piece(self, face, left_eyepiece, right_eyepiece):
+        assert self.center_piece is not None
+
