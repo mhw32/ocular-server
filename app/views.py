@@ -1,8 +1,12 @@
 from app import app
+from flask import jsonify
 from flask import request, Response
 from utils import read_base64_image
 from utils import write_base64_image
 
+import os
+import json
+import numpy as np
 import sys; sys.path.append('..')
 from ocular import ocular
 from ocular.glasses import Glasses
@@ -21,7 +25,8 @@ def render():
     frame = read_base64_image(base64_str)  # np array
 
     dummy = Glasses()
-    dummy.load_pieces_from_directory('../img/dummy')
+    dummy.load_pieces_from_directory(
+        os.path.join(os.path.dirname(os.path.realpath(__file__)), '../img/dummy'))
     faces = ocular.get_facial_keypoints_from_frame(frame)
     
     for (i, face) in enumerate(faces):
@@ -38,5 +43,9 @@ def render():
                                         alpha_l * frame[y:y+h, x:x+w, c]))
                 frame[y:y+h, x:x+w, c] = frame_slice.astype(np.uint8)
 
-    data = write_base64_image(frame)
-    return Response(response=data)
+    rendering = write_base64_image(frame)
+    response = json.dumps({'image': rendering})
+    return Response(
+        response=response, 
+        status=200, 
+        mimetype='appliation/json')

@@ -144,7 +144,7 @@ class Glasses(object):
 
         old_cpiece_width, old_cpiece_height = center_piece.size
         new_cpiece_width = int(rx - (lx + lw))
-        # new_cpiece_width = int((face['keypoints'][43][0] - face['keypoints'][40][0]) * 0.8)
+        new_cpiece_width = int((face['keypoints'][42][0] - face['keypoints'][39][0]) * 0.65)
         new_cpiece_height = int(np.round(new_cpiece_width / float(old_cpiece_width) *  old_cpiece_height))
         center_piece = center_piece.resize((new_cpiece_width, new_cpiece_height))
         center_piece = center_piece.rotate(math.degrees(angle), expand=True)
@@ -152,8 +152,8 @@ class Glasses(object):
         center_piece = np.asarray(center_piece)
         
         # grab the nose (where we will center the bridge)
-        ctrpt_x = int(face['keypoints'][28][0] - new_cpiece_width / 2)  # x, y
-        ctrpt_y = int(np.round(np.mean(face['keypoints'][[37,40,43,46], 1])))
+        ctrpt_x = int(face['keypoints'][27][0] - new_cpiece_width / 2)  # x, y
+        ctrpt_y = int(face['keypoints'][27][1])
 
         return {
             'data': center_piece,
