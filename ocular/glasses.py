@@ -54,7 +54,7 @@ class Glasses(object):
     def _place_left_eyepiece(self, face, width_factor=1.75):
         assert self.left_eyepiece is not None
         eyepiece = copy.deepcopy(self.left_eyepiece)
-        eye = face['keypoints'][36:42]
+        eye = face['keypoints'][36:42]  # (x, y)
         # compute center of eye
         eye_center = np.round(np.mean(eye, axis=0)).astype(np.int)
         eye_width = np.max(eye[:, 0]) - np.min(eye[:, 0])
@@ -78,9 +78,10 @@ class Glasses(object):
         return {
             'data': eyepiece,
             'center': eye_center,
-            'loc': (int(eye_center[1] - (new_eyepiece_height - 1) / 2), 
-                    int(eye_center[0] - (new_eyepiece_width - 1) / 2),
-                    new_eyepiece_height, new_eyepiece_width)
+            # (x, y, w, h) convention
+            'loc': (int(eye_center[0] - (new_eyepiece_width - 1) / 2),
+                    int(eye_center[1] - (new_eyepiece_height - 1) / 2), 
+                    new_eyepiece_width, new_eyepiece_height)
         }
 
     def _place_right_eyepiece(self, face, width_factor=1.75):
@@ -110,9 +111,9 @@ class Glasses(object):
         return {
             'data': eyepiece,
             'center': eye_center[::-1],
-            'loc': (int(eye_center[1] - (new_eyepiece_height - 1) / 2),
-                    int(eye_center[0] - (new_eyepiece_width - 1) / 2), 
-                    new_eyepiece_height, new_eyepiece_width)
+            'loc': (int(eye_center[0] - (new_eyepiece_width - 1) / 2), 
+                    int(eye_center[1] - (new_eyepiece_height - 1) / 2),
+                    new_eyepiece_width, new_eyepiece_height)
         }
 
     # def _place_left_earpiece(self, face, left_eyepiece):
@@ -124,12 +125,12 @@ class Glasses(object):
     def _place_center_piece(self, face, left_eyepiece, right_eyepiece):
         assert self.center_piece is not None
         center_piece = self.center_piece
-        ly, lx, lh, lw = left_eyepiece['loc']
-        ry, rx, rh, rw = right_eyepiece['loc']
+        lx, ly, lw, lh = left_eyepiece['loc']
+        rx, ry, rw, rh = right_eyepiece['loc']
 
-        right_pivot = [int(ly + lh / 2), int(lx + lw)]
-        left_pivot = [int(ry + rh / 2), int(rx)]
-        angle = math.atan2(right_pivot[0] - left_pivot[0], float(right_pivot[1] - left_pivot[1]))
+        right_pivot = [int(lx + lw), int(ly + lh / 2)]
+        left_pivot = [int(rx), int(ry + rh / 2)]
+        angle = math.atan2(float(right_pivot[1] - left_pivot[1]), right_pivot[0] - left_pivot[0])
 
         old_cpiece_width, old_cpiece_height = center_piece.size
         new_cpiece_width = int((rx - (lx + lw)) / abs(math.cos(angle)))
@@ -140,5 +141,5 @@ class Glasses(object):
         return {
             'data': cpiece,
             'loc': (right_pivot[0], right_pivot[1], 
-                    new_cpiece_height, new_cpiece_width),
+                    new_cpiece_width, new_cpiece_height),
         }

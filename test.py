@@ -24,14 +24,16 @@ if __name__ == "__main__":
         for (i, face) in enumerate(faces):
             pieces = dummy.place_glasses(face)
             for piece in pieces.itervalues():
-                x, y, w, h = piece['loc']
+                x, y, w, h= piece['loc']
                 alpha_s = piece['data'][:, :, 3] / 255.0
                 alpha_l = 1.0 - alpha_s
 
                 for c in xrange(0, 3):
+                    # render images as (y, x, h, w) as openCV does 
+                    # this means i need to swapaxes
                     frame_slice = np.round((alpha_s * piece['data'][:, :, c] + 
-                                            alpha_l * frame[x:x+w, y:y+h, c]))
-                    frame[x:x+w, y:y+h, c] = frame_slice.astype(np.uint8)
+                                            alpha_l * frame[y:y+h, x:x+w, c]))
+                    frame[y:y+h, x:x+w, c] = frame_slice.astype(np.uint8)
 
             for (x, y) in face['keypoints']:
                 cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)
