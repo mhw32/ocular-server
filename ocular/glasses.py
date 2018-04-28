@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import os
+import PIL
 import copy
 import math
 import numpy as np
@@ -37,12 +38,13 @@ class Glasses(object):
         self.center_piece = Image.open(os.path.join(dir, 'center_piece.png'))
 
     def place_glasses(self, face):
+        angle = self._compute_angle(face)
         # NOTE: only call after <load_pieces_from_directory>
-        left_eyepiece = self._place_left_eyepiece(face)
-        right_eyepiece = self._place_right_eyepiece(face)
+        left_eyepiece = self._place_left_eyepiece(face, angle)
+        right_eyepiece = self._place_right_eyepiece(face, angle)
         # left_earpiece = self._place_left_earpiece(face, left_eyepiece)
         # right_earpiece = self._place_right_earpiece(face, right_eyepiece)
-        center_piece = self._place_center_piece(face, left_eyepiece, right_eyepiece)
+        center_piece = self._place_center_piece(face, left_eyepiece, right_eyepiece, angle)
         return {
             'left_eyepiece': left_eyepiece,
             'right_eyepiece': right_eyepiece,
@@ -51,7 +53,15 @@ class Glasses(object):
             'center_piece': center_piece,
         }
 
-    def _place_left_eyepiece(self, face, width_factor=1.75):
+    def _compute_angle(self, face):
+        left_eye = face['keypoints'][36:42]
+        right_eye = face['keypoints'][42:48]
+        diff_eye = right_eye - left_eye
+        angle_eye = 2 * math.pi - np.arctan2(diff_eye[:, 1], diff_eye[:, 0])
+        angle_eye = np.mean(angle_eye)
+        return angle_eye
+
+    def _place_left_eyepiece(self, face, angle, width_factor=1.75):
         assert self.left_eyepiece is not None
         eyepiece = copy.deepcopy(self.left_eyepiece)
         eye = face['keypoints'][36:42]  # (x, y)
@@ -73,6 +83,8 @@ class Glasses(object):
 
         # reshape eyepiece
         eyepiece = eyepiece.resize((new_eyepiece_width, new_eyepiece_height))
+        eyepiece = eyepiece.rotate(math.degrees(angle), expand=True)
+        new_eyepiece_width, new_eyepiece_height = eyepiece.size
         eyepiece = np.asarray(eyepiece)
 
         return {
@@ -84,7 +96,7 @@ class Glasses(object):
                     new_eyepiece_width, new_eyepiece_height)
         }
 
-    def _place_right_eyepiece(self, face, width_factor=1.75):
+    def _place_right_eyepiece(self, face, angle, width_factor=1.75):
         assert self.right_earpiece is not None
         eyepiece = copy.deepcopy(self.right_eyepiece)
         eye = face['keypoints'][42:48]
@@ -106,6 +118,8 @@ class Glasses(object):
 
         # reshape eyepiece
         eyepiece = eyepiece.resize((new_eyepiece_width, new_eyepiece_height))
+        eyepiece = eyepiece.rotate(math.degrees(angle), expand=True)
+        new_eyepiece_width, new_eyepiece_height = eyepiece.size
         eyepiece = np.asarray(eyepiece)
 
         return {
@@ -122,24 +136,20 @@ class Glasses(object):
     # def _place_right_earpiece(self, face, right_eyepiece):
     #     assert self.right_earpiece is not None
 
-    def _place_center_piece(self, face, left_eyepiece, right_eyepiece):
+    def _place_center_piece(self, face, left_eyepiece, right_eyepiece, angle):
         assert self.center_piece is not None
-        center_piece = self.center_piece
+        center_piece = copy.deepcopy(self.center_piece)
         lx, ly, lw, lh = left_eyepiece['loc']
         rx, ry, rw, rh = right_eyepiece['loc']
 
-        right_pivot = [int(lx + lw), int(ly + lh / 2)]
-        left_pivot = [int(rx), int(ry + rh / 2)]
-        angle = math.atan2(float(right_pivot[1] - left_pivot[1]), right_pivot[0] - left_pivot[0])
-
         old_cpiece_width, old_cpiece_height = center_piece.size
-        new_cpiece_width = int((rx - (lx + lw)) / abs(math.cos(angle)))
+        new_cpiece_width = int(rx - (lx + lw))
         new_cpiece_height = int(np.round(new_cpiece_width / float(old_cpiece_width) *  old_cpiece_height))
-
-        cpiece = center_piece.resize((new_cpiece_width, new_cpiece_height))
-        cpiece = np.asarray(cpiece)
+        center_piece = center_piece.resize((new_cpiece_width, new_cpiece_height))
+        center_piece = np.asarray(center_piece)
+        
         return {
-            'data': cpiece,
-            'loc': (right_pivot[0], right_pivot[1], 
+            'data': center_piece,
+            'loc': (int(lx + lw), int(ly + lh / 2),
                     new_cpiece_width, new_cpiece_height),
         }
