@@ -30,7 +30,7 @@ if __name__ == "__main__":
         for (i, face) in enumerate(faces):
             pieces = glasses.place_glasses(face, width_factor=args.width_factor)
             for piece in pieces.itervalues():
-                x, y, w, h= piece['loc']
+                x, y, w, h = piece['loc']
                 alpha_s = piece['data'][:, :, 3] / 255.0
                 alpha_l = 1.0 - alpha_s
 

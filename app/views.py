@@ -41,9 +41,40 @@ def render():
             for c in xrange(0, 3):
                 # render images as (y, x, h, w) as openCV does 
                 # this means i need to swapaxes
-                frame_slice = np.round((alpha_s * piece['data'][:, :, c] + 
-                                        alpha_l * frame[y:y+h, x:x+w, c]))
-                frame[y:y+h, x:x+w, c] = frame_slice.astype(np.uint8)
+                try:
+                    frame_slice = np.round((alpha_s * piece['data'][:, :, c] + 
+                                            alpha_l * frame[y:y+h, x:x+w, c]))
+                    frame[y:y+h, x:x+w, c] = frame_slice.astype(np.uint8)
+                except:
+                    pass
+
+    rendering = write_base64_image(frame)
+    response = json.dumps({'image': rendering})
+    return Response(
+        response=response, 
+        status=200, 
+        mimetype='appliation/json')
+
+
+@app.route('/lipstick', methods=['POST'])
+def lipstick():
+    data = json.loads(request.data)
+    base64_str = data.get('image')
+    red_factor = data.get('r')
+    green_factor = data.get('g')
+    blue_factor = data.get('b')
+    alpha = float(data.get('alpha'))
+    frame = read_base64_image(base64_str)  # np array
+
+    # load a set of glasses
+    lipstick = Lipstick()
+    faces = ocular.get_facial_keypoints_from_frame(frame)
+
+    for (i, face) in enumerate(faces):
+        coords = lipstick.place_lipstick(face)
+        overlay = frame.copy()
+        cv2.fillPoly(overlay, np.int_([coords]), (blue_factor, green_factor, red_factor))
+        cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0, frame)
 
     rendering = write_base64_image(frame)
     response = json.dumps({'image': rendering})
