@@ -1,9 +1,8 @@
 boost==0.1
 cmake==0.7.1
-boost-py
 dlib>=19.3.0
-numpy
-Pillow
+numpy==1.12.1
+Pillow==4.1.1
 scipy>=0.17.0
 aniso8601==1.2.0
 asn1crypto==0.24.0
