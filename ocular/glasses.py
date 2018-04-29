@@ -37,12 +37,12 @@ class Glasses(object):
         self.right_eyepiece = Image.open(os.path.join(dir, 'right_eyepiece.png'))
         self.center_piece = Image.open(os.path.join(dir, 'center_piece.png'))
 
-    def place_glasses(self, face):
+    def place_glasses(self, face, width_factor=1.75):
         angle = self._compute_angle(face)
         rotation = self._compute_rotation(face)
         # NOTE: only call after <load_pieces_from_directory>
-        left_eyepiece = self._place_left_eyepiece(face, angle)
-        right_eyepiece = self._place_right_eyepiece(face, angle)
+        left_eyepiece = self._place_left_eyepiece(face, angle, width_factor=width_factor)
+        right_eyepiece = self._place_right_eyepiece(face, angle, width_factor=width_factor)
         left_earpiece = self._place_left_earpiece(face, angle)
         right_earpiece = self._place_right_earpiece(face, angle)
         center_piece = self._place_center_piece(face, angle)
