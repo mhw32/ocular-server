@@ -39,6 +39,7 @@ class Glasses(object):
 
     def place_glasses(self, face):
         angle = self._compute_angle(face)
+        rotation = self._compute_rotation(face)
         # NOTE: only call after <load_pieces_from_directory>
         left_eyepiece = self._place_left_eyepiece(face, angle)
         right_eyepiece = self._place_right_eyepiece(face, angle)
@@ -52,6 +53,18 @@ class Glasses(object):
             # 'right_earpiece': right_earpiece,
             'center_piece': center_piece,
         }
+
+    def _compute_rotation(self, face):
+        left_face = face['keypoints'][0:4]
+        right_face = face['keypoints'][14:18]
+        middle_face = face['keypoints'][27:35]
+
+        rotation = []
+        for i in xrange(len(left_face)):
+            rotation.append(np.linalg.norm(middle_face - right_face[i], axis=1) / 
+                            np.linalg.norm(middle_face - left_face[i], axis=1))
+        rotation = np.concatenate(rotation)
+        return np.mean(rotation)
 
     def _compute_angle(self, face):
         left_eye = face['keypoints'][36:42]
