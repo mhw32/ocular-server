@@ -19,7 +19,7 @@ class Glasses(object):
         self.center_piece = None
 
     def load_pieces_from_directory(self, dir):
-        # NOTE: user should overload this function.
+        # NOTE: user can overload this function.
         #
         # Given some directory with properly named PNG files, 
         # load them to the glass.
