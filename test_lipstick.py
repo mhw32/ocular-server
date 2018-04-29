@@ -11,9 +11,9 @@ from ocular.lipstick import Lipstick
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--r', type=int, default=0)
+    parser.add_argument('--r', type=int, default=255)
     parser.add_argument('--g', type=int, default=0)
-    parser.add_argument('--b', type=int, default=255)
+    parser.add_argument('--b', type=int, default=0)
     parser.add_argument('--alpha', type=float, default=0.5, help='opacity of overlay [default: 0.5]')
     args = parser.parse_args()
 
