@@ -22,15 +22,17 @@ def index():
 def render():
     data = json.loads(request.data)
     base64_str = data.get('image')
+    glasses_type = data.get('type')
+    width_factor = float(data.get('scale'))
     frame = read_base64_image(base64_str)  # np array
 
-    dummy = Glasses()
-    dummy.load_pieces_from_directory(
-        os.path.join(os.path.dirname(os.path.realpath(__file__)), '../img/dummy'))
+    glasses = Glasses()
+    glasses.load_pieces_from_directory(
+        os.path.join(os.path.dirname(os.path.realpath(__file__)), '../img/%s' % glasses_type))
     faces = ocular.get_facial_keypoints_from_frame(frame)
     
     for (i, face) in enumerate(faces):
-        pieces = dummy.place_glasses(face)
+        pieces = glasses.place_glasses(face, width_factor=width_factor)
         for piece in pieces.itervalues():
             x, y, w, h= piece['loc']
             alpha_s = piece['data'][:, :, 3] / 255.0

@@ -11,14 +11,13 @@ from ocular.glasses import Glasses
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--glasses-type', type=str, default='dummy', help='dummy|option1|option2|option3|option4|option5')
-    parser.add_argument('--width-factor', type=float, default=1.75, help='width of glass to eye')
+    parser.add_argument('--glasses-type', type=str, default='demo', help='demo|circular|kanye|thin')
+    parser.add_argument('--width-factor', type=float, default=1.75, help='width of glass to eye [default: 1.75]')
     args = parser.parse_args()
-    args.cuda = args.cuda and torch.cuda.is_available()
 
     # load a set of glasses
     glasses = Glasses()
-    glasses.load_pieces_from_directory('img/option1')
+    glasses.load_pieces_from_directory('img/%s' % args.glasses_type)
 
     # start video capture
     video_capture = cv2.VideoCapture(0)
@@ -29,7 +28,7 @@ if __name__ == "__main__":
 
         faces = ocular.get_facial_keypoints_from_frame(frame)
         for (i, face) in enumerate(faces):
-            pieces = glasses.place_glasses(face)
+            pieces = glasses.place_glasses(face, width_factor=args.width_factor)
             for piece in pieces.itervalues():
                 x, y, w, h= piece['loc']
                 alpha_s = piece['data'][:, :, 3] / 255.0
