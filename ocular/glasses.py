@@ -43,14 +43,14 @@ class Glasses(object):
         # NOTE: only call after <load_pieces_from_directory>
         left_eyepiece = self._place_left_eyepiece(face, angle)
         right_eyepiece = self._place_right_eyepiece(face, angle)
-        # left_earpiece = self._place_left_earpiece(face, left_eyepiece)
-        # right_earpiece = self._place_right_earpiece(face, right_eyepiece)
-        center_piece = self._place_center_piece(face, left_eyepiece, right_eyepiece, angle)
+        left_earpiece = self._place_left_earpiece(face, angle)
+        right_earpiece = self._place_right_earpiece(face, angle)
+        center_piece = self._place_center_piece(face, angle)
         return {
             'left_eyepiece': left_eyepiece,
             'right_eyepiece': right_eyepiece,
-            # 'left_earpiece': left_earpiece,
-            # 'right_earpiece': right_earpiece,
+            'left_earpiece': left_earpiece,
+            'right_earpiece': right_earpiece,
             'center_piece': center_piece,
         }
 
@@ -143,20 +143,46 @@ class Glasses(object):
                     new_eyepiece_width, new_eyepiece_height)
         }
 
-    # def _place_left_earpiece(self, face, left_eyepiece):
-    #     assert self.left_earpiece is not None
+    def _place_left_earpiece(self, face, angle):
+        assert self.left_earpiece is not None
+        earpiece = copy.deepcopy(self.left_earpiece)
+        eye = face['keypoints'][36]
+        ear = face['keypoints'][0]
+        diff = eye - ear
+        angle = np.arctan2(diff[1], diff[0])
+        earpiece = earpiece.rotate(-(90 + math.degrees(angle)), expand=True)
+        old_width, old_height = earpiece.size
+        new_width = int(np.round((eye[0] - ear[0])))
+        new_height = int(np.round(new_width / float(old_width) *  old_height))
+        earpiece = earpiece.resize((new_width, new_height))
+        earpiece = np.asarray(earpiece)
+        return {
+            'data': earpiece,
+            'loc': (ear[0], ear[1], new_width, new_height),
+        }
 
-    # def _place_right_earpiece(self, face, right_eyepiece):
-    #     assert self.right_earpiece is not None
+    def _place_right_earpiece(self, face, angle):
+        assert self.right_earpiece is not None
+        earpiece = copy.deepcopy(self.right_earpiece)
+        eye = face['keypoints'][45]
+        ear = face['keypoints'][16]
+        diff = ear - eye
+        angle = np.arctan2(diff[1], diff[0])
+        earpiece = earpiece.rotate(-270 - math.degrees(angle), expand=True)
+        old_width, old_height = earpiece.size
+        new_width = int(np.round((ear[0] - eye[0])))
+        new_height = int(np.round(new_width / float(old_width) *  old_height))
+        earpiece = earpiece.resize((new_width, new_height))
+        earpiece = np.asarray(earpiece)
+        return {
+            'data': earpiece,
+            'loc': (eye[0], eye[1], new_width, new_height),
+        }
 
-    def _place_center_piece(self, face, left_eyepiece, right_eyepiece, angle):
+    def _place_center_piece(self, face, angle):
         assert self.center_piece is not None
         center_piece = copy.deepcopy(self.center_piece)
-        lx, ly, lw, lh = left_eyepiece['loc']
-        rx, ry, rw, rh = right_eyepiece['loc']
-
         old_cpiece_width, old_cpiece_height = center_piece.size
-        new_cpiece_width = int(rx - (lx + lw))
         new_cpiece_width = int((face['keypoints'][42][0] - face['keypoints'][39][0]) * 0.65)
         new_cpiece_height = int(np.round(new_cpiece_width / float(old_cpiece_width) *  old_cpiece_height))
         center_piece = center_piece.resize((new_cpiece_width, new_cpiece_height))
