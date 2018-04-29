@@ -1,5 +1,7 @@
 import cv2
 import base64
+from PIL import Image
+from io import BytesIO
 import numpy as np
 
 
@@ -15,6 +17,9 @@ def read_base64_image(base64_str):
     return rgb_image
 
 
-def write_base64_image(image):
+def write_base64_image(nparr):
     """Inverse of read_base64_image."""
-    return base64.b64encode(image.tostring())
+    buffered = BytesIO()
+    image = Image.fromarray(nparr.astype(np.uint8))
+    image.save(buffered)
+    return base64.b64encode(buffered.getvalue())
