@@ -37,9 +37,12 @@ if __name__ == "__main__":
                 for c in xrange(0, 3):
                     # render images as (y, x, h, w) as openCV does 
                     # this means i need to swapaxes
-                    frame_slice = np.round((alpha_s * piece['data'][:, :, c] + 
-                                            alpha_l * frame[y:y+h, x:x+w, c]))
-                    frame[y:y+h, x:x+w, c] = frame_slice.astype(np.uint8)
+                    try:
+                        frame_slice = np.round((alpha_s * piece['data'][:, :, c] + 
+                                                alpha_l * frame[y:y+h, x:x+w, c]))
+                        frame[y:y+h, x:x+w, c] = frame_slice.astype(np.uint8)
+                    except:
+                        pass
 
             for (x, y) in face['keypoints']:
                 cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)
