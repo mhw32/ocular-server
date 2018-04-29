@@ -10,6 +10,7 @@ import numpy as np
 import sys; sys.path.append('..')
 from ocular import ocular
 from ocular.glasses import Glasses
+from ocular.makeup import Lipstick
 
 
 @app.route('/')
@@ -56,8 +57,8 @@ def render():
         mimetype='appliation/json')
 
 
-@app.route('/lipstick', methods=['POST'])
-def lipstick():
+@app.route('/beauty', methods=['POST'])
+def beauty():
     data = json.loads(request.data)
     base64_str = data.get('image')
     red_factor = data.get('r')

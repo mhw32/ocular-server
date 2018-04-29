@@ -5,7 +5,7 @@ from __future__ import absolute_import
 import cv2
 import numpy as np
 from ocular import ocular
-from ocular.lipstick import Lipstick
+from ocular.makeup import Lipstick
 
 
 if __name__ == "__main__":
@@ -29,6 +29,7 @@ if __name__ == "__main__":
 
         faces = ocular.get_facial_keypoints_from_frame(frame)
         for (i, face) in enumerate(faces):
+            # draw lipstick!
             coords = lipstick.place_lipstick(face)
             overlay = frame.copy()
             cv2.fillPoly(overlay, np.int_([coords]), (args.b, args.g, args.r))
