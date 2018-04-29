@@ -57,8 +57,8 @@ def render():
         mimetype='appliation/json')
 
 
-@app.route('/beauty', methods=['POST'])
-def beauty():
+@app.route('/lipstick', methods=['POST'])
+def lipstick():
     data = json.loads(request.data)
     base64_str = data.get('image')
     red_factor = data.get('r')
