@@ -13,7 +13,7 @@ click==6.7
 cryptography==1.9
 Flask==0.12.1
 Flask-Ask==0.9.7
-Flask-Cors==3.0.2
+Flask-Cors==3.0.9
 gunicorn==19.7.1
 idna==2.6
 itsdangerous==0.24
