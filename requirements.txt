@@ -2,7 +2,7 @@ boost==0.1
 cmake==0.7.1
 dlib>=19.3.0
 numpy==1.12.1
-Pillow==4.1.1
+Pillow==8.3.2
 scipy>=0.17.0
 aniso8601==1.2.0
 asn1crypto==0.24.0
